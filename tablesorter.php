@@ -3,6 +3,7 @@ namespace Grav\Plugin;
 
 use Grav\Common\Plugin;
 use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * Class TablesorterPlugin
@@ -66,6 +67,7 @@ class TablesorterPlugin extends Plugin
 
     public function onTwigSiteVariables()
     {
+        $locator = $this->grav['locator'];
         $defaults = (array) $this->config->get('plugins.tablesorter');
         /** @var Page $page */
         $page = $this->grav['page'];
@@ -95,7 +97,22 @@ class TablesorterPlugin extends Plugin
             $themes = str_replace(' ', '', $themes);
             $themes = explode(',', $themes);
             foreach ($themes as $theme) {
-                $bits[] = 'plugin://tablesorter/dist/css/theme.'.$theme.$mode.'.css';
+                // build filename
+                $custompath = $this->config->get('plugins.tablesorter.custom_path');
+                if ($custompath === null) {
+                    $custompath = '';
+                }
+                $themefile = 'theme.'.$theme.$mode.'.css';
+                $resource = 'theme://'.$custompath.'/'.$themefile;
+
+                // check for local version first
+                $customcss = $locator->findResource($resource);
+                if ($customcss) {
+                    $bits[] = $resource;
+                } else {
+                    // otherwise get from `dist` folder
+                    $bits[] = 'plugin://tablesorter/dist/css/'.$themefile;
+                }
             }
         }
 

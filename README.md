@@ -34,6 +34,7 @@ active: false
 include_widgets: false
 include_metadata: false
 production: true 
+custom_path: assets/tablesorter  #no leading or trailing slash
 themes: blue
 table_nums: 1
 ```
@@ -52,6 +53,8 @@ table_nums: 1
 * If `include_metadata` is `true`, then the core metadata JS will be included.
 
 * If `production` is true, then the minified versions of the files will be loaded.
+
+* The `custom_path` field is only needed if you're going to customize things (see the "Customization" section below). It's a path relative to your active theme where you will place your custom CSS and JS files. Do *not* include a leading or a trailing slash.
 
 * The `themes` field is where you specify all the CSS themes you wish to load. Separate multiple themes with commas. A list of available themes is found at [Tablesorter's Github page](https://github.com/Mottie/tablesorter/tree/v2.27.7/dist/css).
 
@@ -108,10 +111,17 @@ tablesorter:
       theme: green
 ```
 
+## Customization
+
+Currently the only customization supported is themes. When finding theme files to inject, the plugin first checks the `custom_path`. If it doesn't find the file there, it will pull from the plugin's `dist` folder. All you have to do is ensure you follow the naming convention: `theme.{NAME}{.min?}.css`.
+
+The most common customization will be copying an existing theme over and just tweaking it a little.
+
 ## Future Work
 
 I'm not a PHP native, so I welcome any pull requests to clarify documentation, clean up the code, or to add new functionality. 
 
-- [ ] Make it possible to override or insert your own themes.
+- [X] Make it possible to override or insert your own themes.
 - [ ] Explore available widgets and document which work and which don't.
 - [ ] Look at incorporating custom parsers.
+- [ ] Admin integration (I don't use it, so please submit pull requests)
