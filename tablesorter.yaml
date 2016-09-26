@@ -2,6 +2,6 @@ enabled: true
 active: false
 include_widgets: false
 include_metadata: false
-production: true    #loads the minified versions of the files
-themes: blue,green
+production: true 
+themes: blue
 table_nums: 1
