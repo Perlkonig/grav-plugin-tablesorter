@@ -70,7 +70,9 @@ tablesorter:
     ...
 ```
 
-The full list of available options can be had on [the Tablesorter documentation page](https://mottie.github.io/tablesorter/docs/index.html#Configuration). For example, if you want to automatically sort the first column *of all the affected tables* in ascending order, you'd do the following:
+The full list of available options can be had on [the Tablesorter documentation page](https://mottie.github.io/tablesorter/docs/index.html#Configuration). What the plugin does is JSON encode the `args` content and pass that on to the function.
+
+For example, if you want to automatically sort the first column *of all the affected tables* in ascending order, you'd do the following:
 
 ```
 tablesorter:
