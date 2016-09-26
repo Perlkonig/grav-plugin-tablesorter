@@ -108,8 +108,7 @@ tablesorter:
 
 ## Future Work
 
-I plan on exploring the widgets and will update the documentation as I discover what's possible and not possible.
-
 I'm not a PHP native, so I welcome any pull requests to clarify documentation, clean up the code, or to add new functionality. 
 
-
+- [ ] Explore available widgets and document which work and which don't.
+- [ ] Make it possible to override or insert your own themes.
