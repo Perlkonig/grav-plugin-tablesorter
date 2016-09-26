@@ -112,5 +112,6 @@ tablesorter:
 
 I'm not a PHP native, so I welcome any pull requests to clarify documentation, clean up the code, or to add new functionality. 
 
-- [ ] Explore available widgets and document which work and which don't.
 - [ ] Make it possible to override or insert your own themes.
+- [ ] Explore available widgets and document which work and which don't.
+- [ ] Look at incorporating custom parsers.
