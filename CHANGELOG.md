@@ -1,3 +1,9 @@
+# v1.1.2
+##  09/30/2016
+
+1. [](#bugfix)
+    * Had two `demo` tags in the `blueprints.yaml` file
+
 # v1.1.1
 ##  09/30/2016
 
