@@ -2,6 +2,8 @@
 
 The **Tablesorter** Plugin is for [Grav CMS](http://github.com/getgrav/grav). It applies the jQuery plugin [Tablesorter](https://mottie.github.io/tablesorter/docs/) to tables in a page (v2.27.7).
 
+For a demo, [visit my blog](https://perlkonig.com/demos/tablesorter).
+
 ## Installation
 
 Installing the Tablesorter plugin can be done in one of two ways. The GPM (Grav Package Manager) installation method enables you to quickly and easily install the plugin with a simple terminal command, while the manual method enables you to do so via a zip file.
