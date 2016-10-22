@@ -1,3 +1,9 @@
+# v1.1.3
+## 10/22/2016
+
+1. [](#new)
+    * Plugin now only looks at the page's output, not the full rendered page
+
 # v1.1.2
 ##  09/30/2016
 
