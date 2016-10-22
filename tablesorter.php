@@ -60,7 +60,7 @@ class TablesorterPlugin extends Plugin
         if ($this->config->get('plugins.tablesorter.active')) {
             $this->enable([
                 'onTwigSiteVariables' => ['onTwigSiteVariables', 0],
-                'onOutputGenerated' => ['onOutputGenerated', 0]
+                'onPageContentProcessed' => ['onPageContentProcessed', 0]
             ]);
         }
     }
@@ -165,9 +165,10 @@ class TablesorterPlugin extends Plugin
         }
     }
 
-    public function onOutputGenerated(Event $e)
+    public function onPageContentProcessed(Event $e)
     {
         $config = $this->grav['config'];
+        $page = $this->grav['page'];
 
         $nums = $config->get('plugins.tablesorter.table_nums');
         if ($nums !== null) {
@@ -176,7 +177,7 @@ class TablesorterPlugin extends Plugin
             // explode on the comma
             $nums = explode(',', $nums);
 
-            $content = $this->grav->output;
+            $content = $page->getRawContent();
             // Get count of <table> tags in the output
             $tblcount = substr_count($content, '<table');
             $offset = 0;
@@ -212,7 +213,7 @@ class TablesorterPlugin extends Plugin
                 // move offset
                 $offset = strpos($content, '<table', $offset) + 1;
             }
-            $this->grav->output = $content;
+            $this->grav['page']->setRawContent($content);
         }
     }
 }
