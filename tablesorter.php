@@ -40,7 +40,7 @@ class TablesorterPlugin extends Plugin
 
         // Enable the main event we are interested in
         $this->enable([
-            'onPageInitialized' => ['onPageInitialized', 0],
+            'onPageInitialized' => ['onPageInitialized', 100],
         ]);
     }
 
@@ -60,7 +60,7 @@ class TablesorterPlugin extends Plugin
         if ($this->config->get('plugins.tablesorter.active')) {
             $this->enable([
                 'onTwigSiteVariables' => ['onTwigSiteVariables', 0],
-                'onPageContentProcessed' => ['onPageContentProcessed', 0]
+                'onPageContentProcessed' => ['onPageContentProcessed', -100000]
             ]);
         }
     }
@@ -68,37 +68,33 @@ class TablesorterPlugin extends Plugin
     public function onTwigSiteVariables()
     {
         $locator = $this->grav['locator'];
-        $defaults = (array) $this->config->get('plugins.tablesorter');
+        $config = $this->grav['config'];
         /** @var Page $page */
         $page = $this->grav['page'];
-        if (isset($page->header()->tablesorter)) {
-            $this->config->set('plugins.tablesorter', array_merge($defaults, $page->header()->tablesorter));
-        }
-
-        $mode = $this->config->get('plugins.tablesorter.production') ? '.min' : '';
+        $mode = $config->get('plugins.tablesorter.production') ? '.min' : '';
 
         $bits = [];
         // Add core js
         $bits[] = 'plugin://tablesorter/dist/js/jquery.tablesorter'.$mode.'.js';
 
         // Add metadata
-        if ($this->config->get('plugins.tablesorter.include_metadata')) {
+        if ($config->get('plugins.tablesorter.include_metadata')) {
             $bits[] = 'plugin://tablesorter/dist/js/extras/jquery.metadata'.$mode.'.js';
         }
 
         // Add widgets
-        if ($this->config->get('plugins.tablesorter.include_widgets')) {
+        if ($config->get('plugins.tablesorter.include_widgets')) {
             $bits[] = 'plugin://tablesorter/dist/js/jquery.tablesorter.widgets'.$mode.'.js';
         }
 
         // Add theme css
-        $themes = $this->config->get('plugins.tablesorter.themes');
+        $themes = $config->get('plugins.tablesorter.themes');
         if ($themes !== null) {
             $themes = str_replace(' ', '', $themes);
             $themes = explode(',', $themes);
             foreach ($themes as $theme) {
                 // build filename
-                $custompath = $this->config->get('plugins.tablesorter.custom_path');
+                $custompath = $config->get('plugins.tablesorter.custom_path');
                 if ($custompath === null) {
                     $custompath = '';
                 }
@@ -123,7 +119,7 @@ class TablesorterPlugin extends Plugin
 
         // Insert inline JS code
         //   Get table numbers
-        $nums = $this->config->get('plugins.tablesorter.table_nums');
+        $nums = $config->get('plugins.tablesorter.table_nums');
         if ($nums !== null) {
             // strip space characters
             $nums = str_replace(' ', '', $nums);
@@ -134,7 +130,7 @@ class TablesorterPlugin extends Plugin
             $code = [];
             $code[] = '$(function(){';
             $templatecode = '$("#TABLEID").tablesorter(ARGS);';
-            $args = $this->config->get('plugins.tablesorter.args');
+            $args = $config->get('plugins.tablesorter.args');
             foreach ($nums as $num) {
                 $codestr = $templatecode;
                 $codestr = str_replace('TABLEID', 'tstableid'.$num, $codestr);
@@ -165,7 +161,7 @@ class TablesorterPlugin extends Plugin
         }
     }
 
-    public function onPageContentProcessed(Event $e)
+    public function onPageContentProcessed()
     {
         $config = $this->grav['config'];
         $page = $this->grav['page'];
@@ -190,14 +186,14 @@ class TablesorterPlugin extends Plugin
                 if (in_array($i, $nums)) {
                     // Get full first <table> tag
                     preg_match('/\<table.*?\>/', $str2, $matches);
-                    $fulltag = $matches[0];
+                    $orig = $fulltag = $matches[0];
 
-                    // add ID tag
+                    // add ID tag (must clobber any existing one)
                     if (strpos($fulltag, 'id=') !== false) {
-                        $fulltag = str_replace('id="', 'id="tstableid'.$i.' ', $fulltag);
-                    } else {
-                        $fulltag = str_replace('<table', '<table id="tstableid'.$i.'"', $fulltag);
+                        $fulltag = preg_replace('/id=\".*?\"/', '', $fulltag);
+                        // $fulltag = str_replace('id="', 'id="tstableid'.$i.' ', $fulltag);
                     }
+                    $fulltag = str_replace('<table', '<table id="tstableid'.$i.'"', $fulltag);
 
                     // add class
                     if (strpos($fulltag, 'class=') !== false) {
@@ -207,7 +203,7 @@ class TablesorterPlugin extends Plugin
                     }
 
                     // replace existing <table> tag with modified one
-                    $str2 = preg_replace('/'.preg_quote($matches[0]).'/', $fulltag, $str2, 1);
+                    $str2 = preg_replace('/'.preg_quote($orig).'/', $fulltag, $str2, 1);
                     $content = $str1.$str2;
                 }
                 // move offset

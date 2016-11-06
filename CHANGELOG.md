@@ -1,3 +1,9 @@
+# v1.1.4
+## 11/06/2016
+
+1. [](#bugfix)
+    * Correctly clobbers any existing table id tag because the HTML spec doesn't allow multiples to exist.
+
 # v1.1.3
 ## 10/22/2016
 
