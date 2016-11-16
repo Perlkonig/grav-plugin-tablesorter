@@ -99,7 +99,7 @@ tablesorter:
       sortList: [[0,1]]
 ```
 
-Themes take a little finesse. As long as you're only using a single theme for all your tables, then you can rely on the default configuration or set the `themes` field in the page header. If you want to use multiple themes in a page, though, then you need to define those themes in the `args` field as well. Let's say you had two tables and you wanted to apply the `blue` theme to the first and the `green` theme to the second:
+Themes take a little finesse. As long as you're only using a single theme for all your tables, then you can rely on the default configuration or set the `themes` field in the page header. If you want to use multiple themes in a page, though, then you need to define those themes in the `args` field as well. (The `themes` setting loads the appropriate JavaScript; the `args` setting actually applies a loaded theme to the table.) Let's say you had two tables and you wanted to apply the `blue` theme to the first and the `green` theme to the second:
 
 ```
 tablesorter:
@@ -113,6 +113,26 @@ tablesorter:
       theme: green
 ```
 
+## Widgets/Plugins
+
+To use widgets, you have to set `include_widgets` to true to load the core widgets JavaScript. Then you activate the widget using the `args` setting as described above. For example:
+
+```yaml
+tablesorter:
+  active: true
+  include_widgets: true   #if not enabled in the core config
+  args:
+    1:
+      widgets:
+        - zebra
+```
+
+As far as I can tell, all the widgets work, but some of them (e.g., Align Character and Math), require hand-coded tables because certain metadata needs to be added to the HTML itself.
+
+## Metadata
+
+If `include_metadata` is set to true, then the module will be loaded and it will parse your table's `class` string for settings. Obviously, this only works with hand-coded tables.
+
 ## Customization
 
 Currently the only customization supported is themes. When finding theme files to inject, the plugin first checks the `custom_path`. If it doesn't find the file there, it will pull from the plugin's `dist` folder. All you have to do is ensure you follow the naming convention: `theme.{NAME}{.min?}.css`.
@@ -124,6 +144,6 @@ The most common customization will be copying an existing theme over and just tw
 I'm not a PHP native, so I welcome any pull requests to clarify documentation, clean up the code, or to add new functionality. 
 
 - [X] Make it possible to override or insert your own themes.
-- [ ] Explore available widgets and document which work and which don't.
+- [X] Explore available widgets and document which work and which don't.
 - [ ] Look at incorporating custom parsers.
 - [ ] Admin integration (I don't use it, so please submit pull requests)
