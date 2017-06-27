@@ -120,20 +120,19 @@ class TablesorterPlugin extends Plugin
         // Insert inline JS code
         //   Get table numbers
         $nums = $config->get('plugins.tablesorter.table_nums');
-        if ($nums !== null) {
+        //inject execution code
+        $code = [];
+        $code[] = '$(function(){';
+        $templatecode = '$("TABLEID").tablesorter(ARGS);';
+        $args = $config->get('plugins.tablesorter.args');
+        if ($nums !== NULL && $nums != 0) {
             // strip space characters
             $nums = str_replace(' ', '', $nums);
             // explode on the comma
             $nums = explode(',', $nums);
-
-            //inject execution code
-            $code = [];
-            $code[] = '$(function(){';
-            $templatecode = '$("#TABLEID").tablesorter(ARGS);';
-            $args = $config->get('plugins.tablesorter.args');
             foreach ($nums as $num) {
                 $codestr = $templatecode;
-                $codestr = str_replace('TABLEID', 'tstableid'.$num, $codestr);
+                $codestr = str_replace('TABLEID', '#tstableid'.$num, $codestr);
                 if ($args !== null) {
                     if (array_key_exists($num, $args)) {
                         $params = $args[$num];
@@ -155,10 +154,24 @@ class TablesorterPlugin extends Plugin
                 }
                 $code[] = $codestr;
             }
-            $code[] = '})';
-            $code = implode('', $code);
-            $assets->addInlineJs($code);
+        } else {
+            $codestr = str_replace('TABLEID', 'table', $templatecode);
+            if ($args !== null) {
+                $params = $args;
+                if (! isset($params['theme'])) {
+                    $params['theme'] = $this->config->get('plugins.tablesorter.themes');
+                }
+                $codestr = str_replace('ARGS', json_encode($params), $codestr);
+            } else {
+                $params = [];
+                $params['theme'] = $this->config->get('plugins.tablesorter.themes');
+                $codestr = str_replace('ARGS', json_encode($params), $codestr);
+            }
+            $code[] = $codestr;
         }
+        $code[] = '})';
+        $code = implode('', $code);
+        $assets->addInlineJs($code);
     }
 
     public function onPageContentProcessed()
@@ -167,49 +180,48 @@ class TablesorterPlugin extends Plugin
         $page = $this->grav['page'];
 
         $nums = $config->get('plugins.tablesorter.table_nums');
-        if ($nums !== null) {
+        if ($nums !== NULL && $nums != 0) {
             // strip space characters
             $nums = str_replace(' ', '', $nums);
             // explode on the comma
             $nums = explode(',', $nums);
-
-            $content = $page->getRawContent();
-            // Get count of <table> tags in the output
-            $tblcount = substr_count($content, '<table');
-            $offset = 0;
-            for ($i=1; $i<=$tblcount; $i++) {
-                // Get pos of first <table> tag
-                $pos = strpos($content, '<table', $offset);
-                $str1 = substr($content, 0, $pos);
-                $str2 = substr($content, $pos);
-                // Are we supposed to touch this table?
-                if (in_array($i, $nums)) {
-                    // Get full first <table> tag
-                    preg_match('/\<table.*?\>/', $str2, $matches);
-                    $orig = $fulltag = $matches[0];
-
-                    // add ID tag (must clobber any existing one)
-                    if (strpos($fulltag, 'id=') !== false) {
-                        $fulltag = preg_replace('/id=\".*?\"/', '', $fulltag);
-                        // $fulltag = str_replace('id="', 'id="tstableid'.$i.' ', $fulltag);
-                    }
-                    $fulltag = str_replace('<table', '<table id="tstableid'.$i.'"', $fulltag);
-
-                    // add class
-                    if (strpos($fulltag, 'class=') !== false) {
-                        $fulltag = str_replace('class="', 'class="tablesorter ', $fulltag);
-                    } else {
-                        $fulltag = str_replace('>', ' class="tablesorter">', $fulltag);
-                    }
-
-                    // replace existing <table> tag with modified one
-                    $str2 = preg_replace('/'.preg_quote($orig).'/', $fulltag, $str2, 1);
-                    $content = $str1.$str2;
-                }
-                // move offset
-                $offset = strpos($content, '<table', $offset) + 1;
-            }
-            $this->grav['page']->setRawContent($content);
         }
+        $content = $page->getRawContent();
+        // Get count of <table> tags in the output
+        $tblcount = substr_count($content, '<table');
+        $offset = 0;
+        for ($i=1; $i<=$tblcount; $i++) {
+            // Get pos of first <table> tag
+            $pos = strpos($content, '<table', $offset);
+            $str1 = substr($content, 0, $pos);
+            $str2 = substr($content, $pos);
+            // Are we supposed to touch this table?
+            if ($nums == null || in_array($i, $nums)) {
+                // Get full first <table> tag
+                preg_match('/\<table.*?\>/', $str2, $matches);
+                $orig = $fulltag = $matches[0];
+
+                // add ID tag (must clobber any existing one)
+                if (strpos($fulltag, 'id=') !== false) {
+                    $fulltag = preg_replace('/id=\".*?\"/', '', $fulltag);
+                    // $fulltag = str_replace('id="', 'id="tstableid'.$i.' ', $fulltag);
+                }
+                $fulltag = str_replace('<table', '<table id="tstableid'.$i.'"', $fulltag);
+
+                // add class
+                if (strpos($fulltag, 'class=') !== false) {
+                    $fulltag = str_replace('class="', 'class="tablesorter ', $fulltag);
+                } else {
+                    $fulltag = str_replace('>', ' class="tablesorter">', $fulltag);
+                }
+
+                // replace existing <table> tag with modified one
+                $str2 = preg_replace('/'.preg_quote($orig).'/', $fulltag, $str2, 1);
+                $content = $str1.$str2;
+            }
+            // move offset
+            $offset = strpos($content, '<table', $offset) + 1;
+        }
+        $this->grav['page']->setRawContent($content);
     }
 }
